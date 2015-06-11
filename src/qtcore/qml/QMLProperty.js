@@ -8,6 +8,7 @@ function QMLProperty(type, obj, name) {
     this.value = undefined;
     this.type = type;
     this.animation = null;
+    this.needsUpdate = true;
 
     // This list contains all signals that hold references to this object.
     // It is needed when deleting, as we need to tidy up all references to this object.
@@ -18,16 +19,35 @@ QMLProperty.ReasonUser = 0;
 QMLProperty.ReasonInit = 1;
 QMLProperty.ReasonAnimation = 2;
 
+function pushEvaluatingProperty( prop ) {
+    // TODO say warnings if already on stack. This means binding loop. BTW actually we do not loop because needsUpdate flag is reset before entering update again.
+    evaluatingProperty = prop;
+    evaluatingPropertyStack.push( prop ); //keep stack of props
+}
+
+function popEvaluatingProperty() {
+
+    evaluatingPropertyStack.pop();
+    if (evaluatingPropertyStack.length == 0)
+      evaluatingProperty = undefined;
+    else
+      evaluatingProperty = evaluatingPropertyStack[ evaluatingPropertyStack.length-1 ];
+}
+
 // Updater recalculates the value of a property if one of the
 // dependencies changed
 QMLProperty.prototype.update = function() {
+    this.needsUpdate = false;
+
     if (!this.binding)
         return;
 
     var oldVal = this.val;
-    evaluatingProperty = this;
+    pushEvaluatingProperty(this);
+    if (!this.binding.eval)
+      this.binding.compile();
     this.val = this.binding.eval(this.objectScope, this.componentScope);
-    evaluatingProperty = undefined;
+    popEvaluatingProperty();
 
     if (this.animation) {
         this.animation.$actions = [{
@@ -45,10 +65,17 @@ QMLProperty.prototype.update = function() {
 
 // Define getter
 QMLProperty.prototype.get = function() {
+    //if (this.needsUpdate && !evaluatingPropertyPaused) {
+    if (this.needsUpdate && engine.operationState !== QMLOperationState.Init) {
+      this.update();
+    }
+
     // If this call to the getter is due to a property that is dependant on this
     // one, we need it to take track of changes
-    if (evaluatingProperty && !this.changed.isConnected(evaluatingProperty, QMLProperty.prototype.update))
+    if (evaluatingProperty && !this.changed.isConnected(evaluatingProperty, QMLProperty.prototype.update)) {
+        // console.log( this,evaluatingPropertyStack.slice(0),this.val );
         this.changed.connect(evaluatingProperty, QMLProperty.prototype.update);
+    }
 
     return this.val;
 }
@@ -79,9 +106,11 @@ QMLProperty.prototype.set = function(newVal, reason, objectScope, componentScope
             if (!newVal.eval)
                 newVal.compile();
 
-            evaluatingProperty = this;
+            pushEvaluatingProperty(this);
+            this.needsUpdate = false;
             newVal = this.binding.eval(objectScope, componentScope);
-            evaluatingProperty = null;
+            popEvaluatingProperty();
+
         } else {
             engine.bindedProperties.push(this);
             return;

@@ -4,6 +4,8 @@ var GETTER = "__defineGetter__",
     // which property called the getter of a certain other property for
     // evaluation and is thus dependant on it.
     evaluatingProperty = undefined,
+    evaluatingPropertyStack = [],
+    evaluatingPropertyPaused = false,
     _executionContext = null,
     // All object constructors
     constructors = {
@@ -306,6 +308,11 @@ function applyProperties(metaObject, item, objectScope, componentScope) {
     _executionContext = componentScope;
     for (i in metaObject) {
         var value = metaObject[i];
+        if (i == "id" || i == "$class") { // keep them
+          item[i] = value;
+          continue;
+        }
+
         // skip global id's and internal values
         if (i == "id" || i[0] == "$") {
             continue;
