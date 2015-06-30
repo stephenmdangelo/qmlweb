@@ -31,6 +31,8 @@ function QMLRepeater(meta) {
             var newItem = self.delegate.createObject(self);
 
             createProperty("int", newItem, "index");
+            newItem.index = index;
+
             var model = self.model instanceof QMLListModel ? self.model.$model : self.model;
             for (var i in model.roleNames) {
                 if (typeof newItem.$properties[model.roleNames[i]] == 'undefined')
@@ -42,8 +44,6 @@ function QMLRepeater(meta) {
             newItem.parent = self.container();
             self.container().childrenChanged();
             self.$items.splice(index, 0, newItem);
-
-            newItem.index = index;
 
             // TODO debug this. Without check to Init, Completed sometimes called twice.. But is this check correct?
             if (engine.operationState !== QMLOperationState.Init && engine.operationState !== QMLOperationState.Idle) {

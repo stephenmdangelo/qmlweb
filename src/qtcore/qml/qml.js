@@ -6,6 +6,7 @@ var GETTER = "__defineGetter__",
     evaluatingProperty = undefined,
     evaluatingPropertyStack = [],
     evaluatingPropertyPaused = false,
+    evaluatingPropertyStackOfStacks = [],
     _executionContext = null,
     // All object constructors
     constructors = {
