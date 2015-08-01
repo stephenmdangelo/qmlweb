@@ -13,13 +13,18 @@ global.Qt = {
   // Load file, parse and construct as Component (.qml)
   createComponent: function(name) {
     if (name in engine.components)
-        return engine.components[name];
+    {
+      var newComponentInstance = Object.create( engine.components[name] );
+      newComponentInstance.$context = _executionContext;
+      return newComponentInstance;
+    }
 
     var nameIsUrl = name.indexOf("//") >= 0 || name.indexOf(":/") >= 0; // e.g. // in protocol, or :/ in disk urls (D:/)
 
     // Do not perform path lookups if name starts with @ sign.
     // This is used when we load components from qmldir files
     // because in that case we do not need any lookups.
+    var origName = name;
     if (name.length > 0 && name[0] == "@") {
       nameIsUrl = true;
       name = name.substr( 1,name.length-1 );
@@ -55,7 +60,7 @@ global.Qt = {
 
     engine.loadImports( tree.$imports,component.$basePath );
 
-    engine.components[name] = component;
+    engine.components[origName] = component;
     return component;
   },
 
