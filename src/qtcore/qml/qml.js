@@ -127,6 +127,7 @@ global.mergeObjects = function (obj1, obj2) {
   return mergedObject;
 }
 
+var contextIds = 0;
 global.perContextConstructors = {};
 
 global.loadImports = function (self, imports) {
@@ -142,7 +143,8 @@ global.loadImports = function (self, imports) {
     else
       constructors = mergeObjects(constructors, moduleConstructors);
   }
-  perContextConstructors[self.objectId] = constructors;
+  self.contextId = contextIds++;
+  perContextConstructors[self.contextId] = constructors;
 }
 
 global.inherit = function(constructor, baseClass) {
@@ -168,6 +170,11 @@ function construct(meta) {
     var item,
         component;
 
+    if (meta.object.$class in perContextConstructors[meta.context.contextId]) {
+        meta.super = constructors[meta.object.$class];
+        item = new perContextConstructors[meta.context.contextId][meta.object.$class](meta);
+        meta.super = undefined;
+    } else
     if (meta.object.$class in constructors) {
         meta.super = constructors[meta.object.$class];
         item = new constructors[meta.object.$class](meta);

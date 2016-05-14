@@ -1,4 +1,5 @@
-function QMLContext() {
+function QMLContext(contextId) {
+    this.contextId = contextId;
     this.nameForObject = function(obj) {
         for (var name in this) {
             if (this[name] == obj)
@@ -27,7 +28,7 @@ QMLComponent.prototype.createObject = function(parent, properties) {
     var item = construct({
         object: this.$metaObject,
         parent: parent,
-        context: this.$context ? Object.create(this.$context) : new QMLContext(),
+        context: this.$context ? Object.create(this.$context) : new QMLContext(this.contextId),
         isComponentRoot: true
     });
 
