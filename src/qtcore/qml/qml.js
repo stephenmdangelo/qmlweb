@@ -127,7 +127,8 @@ global.mergeObjects = function (obj1, obj2) {
   return mergedObject;
 }
 
-global.perContextConstructors = {};
+var importContextIds = 0;
+global.perImportContextConstructors = {};
 
 global.loadImports = function (self, imports) {
   constructors = mergeObjects(modules.Main, null);
@@ -142,7 +143,8 @@ global.loadImports = function (self, imports) {
     else
       constructors = mergeObjects(constructors, moduleConstructors);
   }
-  perContextConstructors[self.objectId] = constructors;
+  self.importContextId = importContextIds++;
+  perImportContextConstructors[self.importContextId] = constructors;
 }
 
 global.inherit = function(constructor, baseClass) {
@@ -168,12 +170,14 @@ function construct(meta) {
     var item,
         component;
 
+    var constructors = perImportContextConstructors[meta.context.importContextId];
+
     if (meta.object.$class in constructors) {
-        meta.super = constructors[meta.object.$class];
-        item = new constructors[meta.object.$class](meta);
+        var constructor = constructors[meta.object.$class];
+        meta.super = constructor;
+        item = new constructor(meta);
         meta.super = undefined;
-    }
-    else {
+    } else {
         // Load component from file. Please look at import.js for main notes.
         // Actually, we have to use that order:
         // 1) try to load component from current basePath
@@ -207,6 +211,9 @@ function construct(meta) {
 
     // keep path in item for probale use it later in Qt.resolvedUrl
     item.$context["$basePath"] = engine.$basePath; //gut
+
+    // We want to use the item's scope, but this Component's imports
+    item.$context.importContextId = meta.context.importContextId;
 
     // Apply properties (Bindings won't get evaluated, yet)
     applyProperties(meta.object, item, item, item.$context);

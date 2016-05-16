@@ -24,10 +24,15 @@ QMLComponent.prototype.createObject = function(parent, properties) {
     // change base path to current component base path
     var bp = engine.$basePath; engine.$basePath = this.$basePath ? this.$basePath : engine.$basePath;
 
+    var context = this.$context ? Object.create(this.$context) : new QMLContext();
+    if (this.importContextId !== undefined) {
+        context.importContextId = this.importContextId;
+    }
+
     var item = construct({
         object: this.$metaObject,
         parent: parent,
-        context: this.$context ? Object.create(this.$context) : new QMLContext(),
+        context: context,
         isComponentRoot: true
     });
 
