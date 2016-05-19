@@ -1,4 +1,6 @@
   global.importJavascriptInContext = function (jsData, $context) {
+    var old_execution_context = _executionContext;
+    _executionContext = $context;
     // TODO: pass more objects to the scope?
     (new Function('jsData', '$context', `
       with ($context) {
@@ -6,6 +8,7 @@
       }
       ${jsData.exports.map(sym => `$context.${sym} = ${sym};`).join('')}
     `))(jsData, $context);
+    _executionContext = old_execution_context;
   }
 
   global.jsparse = function (source) {

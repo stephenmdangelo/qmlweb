@@ -122,6 +122,34 @@ global.Qt = {
     return engine.removeDotSegments( detectedBasePath + url )
   },
 
+  include: function(url)
+  {
+    console.log("include url", url)
+    /* Handle recursive includes */
+    if (_executionContext.$_qml_js_includes === undefined) {
+      _executionContext.$_qml_js_includes = []
+    }
+
+    if (_executionContext.$_qml_js_includes.indexOf(url) >= 0)
+    {
+      return;
+    }
+
+    _executionContext.$_qml_js_includes.push(url);
+
+    var src = url;
+    var js;
+
+    if (typeof engine.$basePath != 'undefined')
+      src = engine.$basePath + src;
+    if (typeof qrc[src] != 'undefined')
+      js = qrc[src];
+    else
+      js = global.jsparse(getUrlContents(src));
+
+    importJavascriptInContext(js, _executionContext);
+  },
+
   // Buttons masks
   LeftButton: 1,
   RightButton: 2,
