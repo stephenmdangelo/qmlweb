@@ -161,6 +161,8 @@ function callSuper(self, meta) {
   meta.super.call(self, meta);
 }
 
+global.callSuper = callSuper;
+
 /**
  * QML Object constructor.
  * @param {Object} meta Meta information about the object and the creation context
@@ -248,6 +250,8 @@ function createProperty(type, obj, propName, options = {}) {
     if (obj.$isComponentRoot)
         setupGetterSetter(obj.$context, propName, getter, setter);
 }
+
+global.createProperty = createProperty;
 
 /**
  * Set up simple getter function for property
