@@ -17,7 +17,10 @@ function QMLItem(meta) {
         this.dom.style.position = "absolute";
     }
     this.dom.style.pointerEvents = "none";
-    this.dom.className = meta.object.$class + (this.id ? " " + this.id : "");
+    /* In case the class is qualified, only use the last part for the css class
+     * name. */
+    var classComponents = meta.object.$class.split(".");
+    this.dom.className = classComponents[classComponents.length-1] + (this.id ? " " + this.id : "");
     this.css = this.dom.style;
     this.impl = null; // Store the actually drawn element
 

@@ -174,8 +174,17 @@ function construct(meta) {
 
     var constructors = perImportContextConstructors[meta.context.importContextId];
 
-    if (meta.object.$class in constructors) {
-        var constructor = constructors[meta.object.$class];
+    var classComponents = meta.object.$class.split(".")
+    for(var ci=0; ci<classComponents.length; ++ci) {
+        var c = classComponents[ci];
+        constructors = constructors[c]
+        if (constructors === undefined) {
+            break;
+        }
+    }
+
+    if (constructors !== undefined) {
+        var constructor = constructors;
         meta.super = constructor;
         item = new constructor(meta);
         meta.super = undefined;
@@ -193,14 +202,21 @@ function construct(meta) {
             // We have that component in some qmldir, load it from qmldir's url
             component = Qt.createComponent( "@" + qdirInfo.url, meta.context);
         }
-        else
-            component = Qt.createComponent(meta.object.$class + ".qml", meta.context);
+        else {
+            var filePath = []
+            for(var ci=0; ci<classComponents.length; ++ci) {
+                var c = classComponents[ci];
+                filePath.push(engine.qualifiedImportPath(
+                    meta.context.importContextId, c) || c);
+            }
+            component = Qt.createComponent(filePath.join("") + ".qml", meta.context);
+        }
 
         if (component) {
             var item = component.createObject(meta.parent);
 
             if (typeof item.dom != 'undefined')
-                item.dom.className += " " + meta.object.$class + (meta.object.id ? " " + meta.object.id : "");
+                item.dom.className += " " + classComponents[classComponents.length-1] + (meta.object.id ? " " + meta.object.id : "");
             var dProp; // Handle default properties
         } else {
             throw new Error("No constructor found for " + meta.object.$class);
