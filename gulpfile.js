@@ -136,7 +136,7 @@ gulp.task('lint-tests', function() {
 
 gulp.task('lint', ['lint-tests']);
 
-gulp.task('test', ['lint', 'build-covered'], function(done) {
+gulp.task('test', ['lint'/*, 'build-covered'*/], function(done) {
   new karma.Server({
     singleRun: true,
     configFile: __dirname + '/karma.conf.js'
