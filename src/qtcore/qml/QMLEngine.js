@@ -114,7 +114,7 @@ QMLEngine = function (element, options) {
         // Create and initialize objects
         var component = new QMLComponent({ object: tree, parent: null });
 
-        this.loadImports( tree.$imports );
+        this.loadImports( tree.$imports, undefined, component.importContextId );
         component.$basePath = engine.$basePath;
         component.$imports = tree.$imports; // for later use
         component.$file = file; // just for debugging
@@ -213,7 +213,7 @@ QMLEngine = function (element, options) {
       * Note importJs method in import.js 
     */
 
-    this.loadImports = function(importsArray, currentFileDir) {
+    this.loadImports = function(importsArray, currentFileDir, importContextId) {
         if (!this.qmldirsContents) this.qmldirsContents = { "QtQuick":{}, "QtQuick.Controls":{} }; // cache
         // putting initial keys in qmldirsContents - is a hack. We should find a way to explain to qmlweb, is this built-in module or qmldir-style module.
 
@@ -280,8 +280,16 @@ QMLEngine = function (element, options) {
                // this is not the same behavior as in Qt for "url" schemes,
                // but it is same as for ordirnal disk files. 
                // So, we do it for experimental purposes.
-               if (nameIsDir) 
-                 this.addImportPath( name + "/" );
+               if (nameIsDir) {
+                 if (entry[3]) {
+                   /* Use entry[1] directly, as we don't want to include the
+                    * basePath, otherwise it gets prepended twice in
+                    * createComponent. */
+                   this.addQualifiedImportPath( importContextId, entry[3], entry[1] + "/" );
+                 } else {
+                   this.addImportPath( name + "/" );
+                 }
+               }
 
                continue;
             }
@@ -430,6 +438,25 @@ QMLEngine = function (element, options) {
     this.addImportPath = function( dirpath ) {
         if (!this.userAddedImportPaths) this.userAddedImportPaths = [];
         this.userAddedImportPaths.push( dirpath );
+    }
+
+    this.addQualifiedImportPath = function(
+        importContextId, moduleQualifier, dirpath )
+    {
+        if ( !this.qualifiedImportPaths ) this.qualifiedImportPaths = {};
+        if ( !this.qualifiedImportPaths[importContextId] ) {
+            this.qualifiedImportPaths[importContextId] = {};
+        }
+        this.qualifiedImportPaths[importContextId][moduleQualifier] = dirpath;
+    }
+
+    this.qualifiedImportPath = function(
+        importContextId, moduleQualifier )
+    {
+        if ( !this.qualifiedImportPaths ) return "";
+        var importPathsForContext = this.qualifiedImportPaths[importContextId];
+        if ( !importPathsForContext ) return "";
+        return importPathsForContext[moduleQualifier] || "";
     }
 
     this.setImportPathList = function( arrayOfDirs )
