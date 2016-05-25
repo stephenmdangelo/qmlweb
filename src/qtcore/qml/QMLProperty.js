@@ -29,7 +29,7 @@ QMLProperty.prototype.update = function() {
     try {
       this.val = this.binding.eval(this.objectScope, this.componentScope);
     } catch (e) {
-      console.log("QMLProperty.update binding error:", e)
+      console.log("QMLProperty.update binding error:", e, Function.prototype.toString.call(this.binding.eval))
     }
     evaluatingProperty = undefined;
 
