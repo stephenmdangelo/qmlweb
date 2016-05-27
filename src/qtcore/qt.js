@@ -22,40 +22,40 @@ global.Qt = {
     var tree = engine.components[name];
 
     if (tree === undefined) {
-    var nameIsUrl = name.indexOf("//") >= 0 || name.indexOf(":/") >= 0; // e.g. // in protocol, or :/ in disk urls (D:/)
+        var nameIsUrl = name.indexOf("//") >= 0 || name.indexOf(":/") >= 0; // e.g. // in protocol, or :/ in disk urls (D:/)
 
-    // Do not perform path lookups if name starts with @ sign.
-    // This is used when we load components from qmldir files
-    // because in that case we do not need any lookups.
-    if (name.length > 0 && name[0] == "@") {
-      nameIsUrl = true;
-      name = name.substr( 1,name.length-1 );
-    }
+        // Do not perform path lookups if name starts with @ sign.
+        // This is used when we load components from qmldir files
+        // because in that case we do not need any lookups.
+        if (name.length > 0 && name[0] == "@") {
+          nameIsUrl = true;
+          name = name.substr( 1,name.length-1 );
+        }
 
-    var file = nameIsUrl ? name : engine.$basePath + name;
+        var file = nameIsUrl ? name : engine.$basePath + name;
 
-    var src = getUrlContents(file, true);
-    // if failed to load, and provided name is not direct url, try to load from dirs in importPathList()
-    if (src==false && !nameIsUrl) {
-      var moredirs = engine.importPathList();
+        var src = getUrlContents(file, true);
+        // if failed to load, and provided name is not direct url, try to load from dirs in importPathList()
+        if (src==false && !nameIsUrl) {
+          var moredirs = engine.importPathList();
 
-      for (var i=0; i<moredirs.length; i++) {
-        file = moredirs[i] + name;
-        src = getUrlContents(file, true);
-        if (src !== false) break;
-      }
-    }
+          for (var i=0; i<moredirs.length; i++) {
+            file = moredirs[i] + name;
+            src = getUrlContents(file, true);
+            if (src !== false) break;
+          }
+        }
 
-    // When createComponent failed to load content from all probable sources, it should return undefined.
-    if (src === false)
-      return undefined;
+        // When createComponent failed to load content from all probable sources, it should return undefined.
+        if (src === false)
+          return undefined;
 
-    tree = parseQML(src, file);
-    tree.$file = file;
-    engine.components[name] = tree;
+        tree = parseQML(src, file);
+        tree.$file = file;
+        engine.components[name] = tree;
 
-    if (tree.$children.length !== 1)
-        console.error("A QML component must only contain one root element!");
+        if (tree.$children.length !== 1)
+            console.error("A QML component must only contain one root element!");
     }
 
     var component = new QMLComponent({ object: tree, context: _executionContext });
