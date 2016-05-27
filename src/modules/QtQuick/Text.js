@@ -44,6 +44,7 @@ registerQmlType({
     createProperty("real", this, "lineHeight");
     createProperty("enum", this, "wrapMode");
     createProperty("enum", this, "horizontalAlignment");
+    createProperty("int", this, "maximumLineCount");
     createProperty("enum", this, "style");
     createProperty("enum", this, "textFormat");
     createProperty("color", this, "styleColor");
@@ -129,6 +130,7 @@ registerQmlType({
     this.font.pointSize = 10;
     this.wrapMode = this.Text.NoWrap;
     this.textFormat = this.Text.AutoText;
+    this.maximumLineCount = -1;
     this.color = "black";
     this.text = "";
 
