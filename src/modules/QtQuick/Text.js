@@ -28,7 +28,12 @@ registerQmlType({
         Normal: 0,
         Outline: 1,
         Raised: 2,
-        Sunken: 3
+        Sunken: 3,
+        // TextFormat
+        PlainText: 0,
+        RichText: 1,
+        AutoText: 2,
+        StyledText: 4
     }
 
     var QMLFont = new getConstructor('QtQuick', '2.0', 'Font');
@@ -40,6 +45,7 @@ registerQmlType({
     createProperty("enum", this, "wrapMode");
     createProperty("enum", this, "horizontalAlignment");
     createProperty("enum", this, "style");
+    createProperty("enum", this, "textFormat");
     createProperty("color", this, "styleColor");
 
     this.colorChanged.connect(this, function(newVal) {
@@ -122,6 +128,7 @@ registerQmlType({
     this.font.family = "sans-serif";
     this.font.pointSize = 10;
     this.wrapMode = this.Text.NoWrap;
+    this.textFormat = this.Text.AutoText;
     this.color = "black";
     this.text = "";
 
