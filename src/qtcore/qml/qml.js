@@ -203,13 +203,15 @@ function construct(meta) {
             component = Qt.createComponent( "@" + qdirInfo.url, meta.context);
         }
         else {
-            var filePath = []
-            for(var ci=0; ci<classComponents.length; ++ci) {
-                var c = classComponents[ci];
-                filePath.push(engine.qualifiedImportPath(
-                    meta.context.importContextId, c) || c);
+            var filePath;
+            if (classComponents.length === 2) {
+                filePath = engine.qualifiedImportPath(
+                    meta.context.importContextId, classComponents[0]) +
+                        classComponents[1];
+            } else {
+                filePath = classComponents[0];
             }
-            component = Qt.createComponent(filePath.join("") + ".qml", meta.context);
+            component = Qt.createComponent(filePath + ".qml", meta.context);
         }
 
         if (component) {
