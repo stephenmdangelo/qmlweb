@@ -40,6 +40,9 @@ QMLEngine = function (element, options) {
     // Base path of qml engine (used for resource loading)
     this.$basePath = "";
 
+    // Used to resolve "absolute" QML paths (which should still be relative to the base QML item)
+    this.$rootBasePath = "";
+
 
 //----------Public Methods----------
     // Start the engine
@@ -94,7 +97,7 @@ QMLEngine = function (element, options) {
     this.loadFile = function(file) {
         var tree;
 
-        this.$basePath = this.extractBasePath(file);
+        this.$rootBasePath = this.$basePath = this.extractBasePath(file);
         this.ensureFileIsLoadedInQrc(file);
         tree = convertToEngine(qrc[file]);
         this.loadQMLTree(tree);
@@ -525,10 +528,20 @@ QMLEngine = function (element, options) {
     // Return a path to load the file
     this.$resolvePath = function(file)
     {
+        if (this.$rootBasePath === undefined || this.$basePath === undefined) {
+            return file
+        }
+
+        // "Root" references in QML should still be relative to the base path
+        if (file.indexOf("/") == 0 && this.$rootBasePath !== undefined) {
+            return this.$rootBasePath + file;
+        }
+
         // probably, replace :// with :/ ?
-        if (file == "" || file.indexOf("://") != -1 || file.indexOf("/") == 0 || file.indexOf("data:") == 0 || file.indexOf("blob:") == 0) {
+        if (file == "" || file.indexOf("://") != -1 || file.indexOf("data:") == 0 || file.indexOf("blob:") == 0) {
             return file;
         }
+
         return this.$basePath + file;
     }
 

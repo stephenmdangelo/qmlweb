@@ -18,11 +18,11 @@ global.Qt = {
     page.focus();
   },
   // Load file, parse and construct as Component (.qml)
-  createComponent: function(name) {
+  createComponent: function(name, context) {
     var tree = engine.components[name];
 
     if (tree === undefined) {
-        var nameIsUrl = name.indexOf("//") >= 0 || name.indexOf(":/") >= 0; // e.g. // in protocol, or :/ in disk urls (D:/)
+        var nameIsUrl = name.indexOf(":/") >= 0; // e.g. :// in protocol, or :/ in disk urls (D:/)
 
         // Do not perform path lookups if name starts with @ sign.
         // This is used when we load components from qmldir files
@@ -32,7 +32,7 @@ global.Qt = {
           name = name.substr( 1,name.length-1 );
         }
 
-        var file = nameIsUrl ? name : engine.$basePath + name;
+        var file = nameIsUrl ? name : engine.$resolvePath(name);
 
         var src = getUrlContents(file, true);
         // if failed to load, and provided name is not direct url, try to load from dirs in importPathList()
@@ -58,12 +58,13 @@ global.Qt = {
             console.error("A QML component must only contain one root element!");
     }
 
-    var component = new QMLComponent({ object: tree, context: _executionContext });
+    var component = new QMLComponent({ object: tree, context: context ? context : _executionContext });
     component.$basePath = engine.extractBasePath( tree.$file );
     component.$imports = tree.$imports;
     component.$file = tree.$file; // just for debugging
 
-    engine.loadImports( tree.$imports,component.$basePath );
+    engine.loadImports( tree.$imports, component.$basePath,
+        component.importContextId );
 
     return component;
   },
@@ -75,7 +76,7 @@ global.Qt = {
 
         var component = new QMLComponent({ object: tree, parent: parent, context: _executionContext });
 
-        engine.loadImports( tree.$imports );
+        engine.loadImports( tree.$imports, undefined, component.importContextId );
 
         if (!file) file = Qt.resolvedUrl("createQmlObject_function");
         component.$basePath = engine.extractBasePath(file);
@@ -135,11 +136,11 @@ global.Qt = {
   {
     /* Handle recursive includes */
     if (_executionContext.$_qml_js_includes === undefined) {
-      console.log("include url making new _qml_js_includes")
+//      console.log("include url making new _qml_js_includes")
       _executionContext.$_qml_js_includes = []
     }
 
-    console.log("include url", url, _executionContext.$_qml_js_includes, _executionContext.$_qml_js_includes.indexOf(url+""), _executionContext.$_qml_js_includes.indexOf(url))
+//    console.log("include url", url, _executionContext.$_qml_js_includes, _executionContext.$_qml_js_includes.indexOf(url+""), _executionContext.$_qml_js_includes.indexOf(url))
 
     if (_executionContext.$_qml_js_includes.indexOf(url) >= 0)
 
@@ -150,11 +151,9 @@ global.Qt = {
 
     _executionContext.$_qml_js_includes.push(url);
 
-    var src = url;
+    var src = engine.$resolvePath(url);
     var js;
 
-    if (typeof engine.$basePath != 'undefined')
-      src = engine.$basePath + src;
     if (typeof qrc[src] != 'undefined')
       js = qrc[src];
     else

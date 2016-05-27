@@ -56,11 +56,9 @@ function QMLComponent(meta) {
     this.finalizeImports = (function($context) {
       for (var i = 0 ; i < jsImports.length ; ++i) {
         var importDesc = jsImports[i];
-        var src = importDesc[1];
+        var src = engine.$resolvePath(importDesc[1]);
         var js;
 
-        if (typeof engine.$basePath != 'undefined')
-          src = engine.$basePath + src;
         if (typeof qrc[src] != 'undefined')
           js = qrc[src];
         else
