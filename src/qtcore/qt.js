@@ -19,9 +19,9 @@ global.Qt = {
   },
   // Load file, parse and construct as Component (.qml)
   createComponent: function(name) {
-    if (name in engine.components)
-        return engine.components[name];
+    var tree = engine.components[name];
 
+    if (tree === undefined) {
     var nameIsUrl = name.indexOf("//") >= 0 || name.indexOf(":/") >= 0; // e.g. // in protocol, or :/ in disk urls (D:/)
 
     // Do not perform path lookups if name starts with @ sign.
@@ -50,19 +50,21 @@ global.Qt = {
     if (src === false)
       return undefined;
 
-    var tree = parseQML(src, file);
+    tree = parseQML(src, file);
+    tree.$file = file;
+    engine.components[name] = tree;
 
     if (tree.$children.length !== 1)
         console.error("A QML component must only contain one root element!");
+    }
 
     var component = new QMLComponent({ object: tree, context: _executionContext });
-    component.$basePath = engine.extractBasePath( file );
+    component.$basePath = engine.extractBasePath( tree.$file );
     component.$imports = tree.$imports;
-    component.$file = file; // just for debugging
+    component.$file = tree.$file; // just for debugging
 
     engine.loadImports( tree.$imports,component.$basePath );
 
-    engine.components[name] = component;
     return component;
   },
 
@@ -131,11 +133,15 @@ global.Qt = {
 
   include: function(url)
   {
-    console.log("include url", url)
     /* Handle recursive includes */
     if (_executionContext.$_qml_js_includes === undefined) {
+      console.log("include url making new _qml_js_includes")
       _executionContext.$_qml_js_includes = []
     }
+
+    console.log("include url", url, _executionContext.$_qml_js_includes, _executionContext.$_qml_js_includes.indexOf(url+""), _executionContext.$_qml_js_includes.indexOf(url))
+
+    if (_executionContext.$_qml_js_includes.indexOf(url) >= 0)
 
     if (_executionContext.$_qml_js_includes.indexOf(url) >= 0)
     {
