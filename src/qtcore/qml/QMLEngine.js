@@ -272,11 +272,6 @@ QMLEngine = function (element, options) {
             }
 
             if (!content) {
-                console.log("qmlengine::loadImports: cannot load qmldir file for import name=",name );
-                // save blank info, meaning that we failed to load import
-                // this prevents repeated lookups
-                this.qmldirsContents[ name ] = {};
-
                // NEW
                // add that dir to import path list
                // that means, lookup qml files in that failed dir by trying to load them directly
