@@ -61,16 +61,14 @@ registerQmlType({
             unload();
 
             if (self.source.length>0) {
-               var fileName = newVal.lastIndexOf(".qml") == newVal.length-4 ? newVal.substring(0, newVal.length-4) : "";
+                var fileName = newVal;
 
-               if ( fileName !== "" ) {
-                   var tree = engine.loadComponent(fileName);
-                   var meta = { object: tree, context: self , parent: self};
-
-                   var qmlComponent = new QMLComponent(meta);
-                   var loadedComponent = createComponentObject(qmlComponent, self);
-
-                   self.sourceComponent = loadedComponent;
+                if (fileName !== "") {
+                   var qmlComponent = Qt.createComponent(fileName, self);
+                   if (qmlComponent) {
+                       var loadedComponent = createComponentObject(qmlComponent, self);
+                       self.sourceComponent = loadedComponent;
+                   }
                    self.sourceUrl = newVal;
                }
             }
