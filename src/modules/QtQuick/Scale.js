@@ -13,10 +13,12 @@ registerQmlType({
     createProperty("real", this.origin, "x");
     createProperty("real", this.origin, "y");
 
+    var self = this;
+
     function updateOrigin() {
-        this.$parent.dom.style.transformOrigin = this.origin.x + "px " + this.origin.y + "px";
-        this.$parent.dom.style.MozTransformOrigin = this.origin.x + "px " + this.origin.y + "px";    // Firefox
-        this.$parent.dom.style.webkitTransformOrigin = this.origin.x + "px " + this.origin.y + "px"; // Chrome, Safari and Opera
+        self.$parent.dom.style.transformOrigin = self.origin.x + "px " + self.origin.y + "px";
+        self.$parent.dom.style.MozTransformOrigin = self.origin.x + "px " + self.origin.y + "px";    // Firefox
+        self.$parent.dom.style.webkitTransformOrigin = self.origin.x + "px " + self.origin.y + "px"; // Chrome, Safari and Opera
     }
     this.xScaleChanged.connect(this.$parent, this.$parent.$updateTransform);
     this.yScaleChanged.connect(this.$parent, this.$parent.$updateTransform);
@@ -27,5 +29,7 @@ registerQmlType({
     this.yScale = 0;
     this.origin.x = 0;
     this.origin.y = 0;
+
+    updateOrigin();
   }
 });
