@@ -45,7 +45,13 @@ registerQmlType({
             y: (e.offsetY || e.layerY)
         };
     }
+    function handleMouseUp(e) {
+        self.pressed = false;
+        self.pressedButtons = 0;
+        document.removeEventListener("mouseup", handleMouseUp);
+    }
     function handleClick(e) {
+        console.log("handle click!", e)
         var mouse = eventToMouse(e);
 
         if (self.enabled && self.acceptedButtons & mouse.button) {
@@ -64,11 +70,8 @@ registerQmlType({
             self.pressed = true;
         }
         self.pressedButtons = mouse.button;
-    }
-    this.dom.onmouseup = function(e) {
-        self.pressed = false;
-        self.pressedButtons = 0;
-    }
+        document.addEventListener("mouseup", handleMouseUp);
+    });
     this.dom.onmouseover = function(e) {
         self.containsMouse = true;
         self.entered();
