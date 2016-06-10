@@ -48,10 +48,9 @@ registerQmlType({
     function handleMouseUp(e) {
         self.pressed = false;
         self.pressedButtons = 0;
-        document.removeEventListener("mouseup", handleMouseUp);
+        $(document).off("vmouseup", null, handleMouseUp);
     }
     function handleClick(e) {
-        console.log("handle click!", e)
         var mouse = eventToMouse(e);
 
         if (self.enabled && self.acceptedButtons & mouse.button) {
@@ -62,7 +61,7 @@ registerQmlType({
     }
     this.dom.onclick = handleClick;
     this.dom.oncontextmenu = handleClick;
-    this.dom.onmousedown = function(e) {
+    $(this.dom).on("vmousedown", function(e) {
         if (self.enabled) {
             var mouse = eventToMouse(e);
             self.mouseX = mouse.x;
@@ -70,7 +69,7 @@ registerQmlType({
             self.pressed = true;
         }
         self.pressedButtons = mouse.button;
-        document.addEventListener("mouseup", handleMouseUp);
+        $(document).on("vmouseup", handleMouseUp);
     });
     this.dom.onmouseover = function(e) {
         self.containsMouse = true;
