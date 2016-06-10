@@ -526,10 +526,12 @@ QMLEngine = function (element, options) {
     }
 
     // Return a path to load the file
-    this.$resolvePath = function(file)
+    this.$resolvePath = function(file, basePath)
     {
-        if (this.$rootBasePath === undefined || this.$basePath === undefined) {
-            return file
+        if ((this.$rootBasePath === undefined || this.$basePath === undefined)
+            && basePath === undefined)
+        {
+            return file;
         }
 
         // "Root" references in QML should still be relative to the base path
@@ -542,7 +544,7 @@ QMLEngine = function (element, options) {
             return file;
         }
 
-        return this.$basePath + file;
+        return (basePath ? basePath : this.$basePath) + file;
     }
 
     this.$registerStart = function(f)
