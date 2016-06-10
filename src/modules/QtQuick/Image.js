@@ -112,8 +112,9 @@ function QMLImage(meta) {
     this.sourceChanged.connect(this, function(val) {
         this.progress = 0;
         this.status = this.Image.Loading;
-        bg.style.backgroundImage="url('" + engine.$resolvePath(val) + "')";
-        img.src = engine.$resolvePath(val);
+        var resolvedPath = engine.$resolvePath(val, this.$context.$basePath);
+        bg.style.backgroundImage = "url('" + resolvedPath + "')";
+        img.src = resolvedPath;
         if (img.complete)
           this.status = this.Image.Ready;
         updateFillMode();
