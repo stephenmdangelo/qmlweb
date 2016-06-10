@@ -48,6 +48,8 @@ registerQmlType({
     createProperty("enum", this, "style");
     createProperty("enum", this, "textFormat");
     createProperty("color", this, "styleColor");
+    createProperty("real", this, "paintedHeight");
+    createProperty("real", this, "paintedWidth");
 
     this.colorChanged.connect(this, function(newVal) {
         fc.style.color = QMLColor(newVal);
@@ -146,10 +148,12 @@ registerQmlType({
 
     function updateImplicit() {
         if (typeof this.text == undefined || this.text === "" || !this.dom) {
-             this.implicitHeigh = this.implicitWidth = 0;
+             this.paintedHeight = this.paintedWidth = this.implicitHeight = this.implicitWidth = 0;
         } else {
             this.implicitHeight = fc.offsetHeight;
             this.implicitWidth = fc.offsetWidth;
+            this.paintedHeight = this.implicitHeight
+            this.paintedWidth = this.implicitWidth
         }
     }
   }
