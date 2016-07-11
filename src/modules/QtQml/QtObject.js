@@ -9,6 +9,7 @@ QmlWeb.registerQmlType({
     super(meta.parent);
 
     QmlWeb.createProperty("string", this, "objectName");
+    this.objectNameChanged.connect(this, this.$onObjectNameChanged);
 
     this.$isComponentRoot = meta.isComponentRoot;
     this.$context = meta.context;
@@ -57,5 +58,15 @@ QmlWeb.registerQmlType({
   }
   getAttributes() {
     return this.$attributes;
+  }
+  $onObjectNameChanged(newObjectName, oldObjectName) {
+    if (this.dom) {
+      if (oldObjectName) {
+        this.dom.className = this.dom.className.replace(
+          oldObjectName, newObjectName);
+      } else {
+        this.dom.className = this.dom.className + " " + newObjectName;
+      }
+    }
   }
 });
