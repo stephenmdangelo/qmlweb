@@ -8,6 +8,8 @@ QmlWeb.registerQmlType({
   constructor(meta) {
     super(meta.parent);
 
+    QmlWeb.createProperty("string", this, "objectName");
+
     this.$isComponentRoot = meta.isComponentRoot;
     this.$context = meta.context;
 
