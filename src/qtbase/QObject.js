@@ -46,7 +46,11 @@ class QObject {
     // must do this:
     // 1) parent will be notified and erase object from it's children.
     // 2) DOM node will be removed.
-    this.parent = undefined;
+
+    // Cannot do "this.parent = undefined" because this.parent is readOnly
+    if (this.$properties.parent) {
+        this.$properties.parent.set(undefined, QmlWeb.QMLProperty.ReasonUser);
+    }
 
     // Disconnect any slots connected to any of our signals. Do this after
     // clearing the parent, as that relies on parentChanged being handled.
