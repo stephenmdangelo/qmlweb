@@ -36,11 +36,13 @@ QmlWeb.registerQmlType({
     this.heightChanged.connect(this, this.$updateBorder);
   }
   $onColorChanged(newVal) {
-    this.impl.style.backgroundColor = newVal.$css;
+    this.impl.style.backgroundColor = (newVal === null) ? newVal
+      : newVal.$css;
   }
   border$onColorChanged(newVal) {
     this.$borderActive = true;
-    this.impl.style.borderColor = newVal.$css;
+    this.impl.style.borderColor = (newVal === null) ? newVal
+      : newVal.$css;
     this.$updateBorder();
   }
   border$onWidthChanged() {
