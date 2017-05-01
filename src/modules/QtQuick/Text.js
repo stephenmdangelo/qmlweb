@@ -49,7 +49,8 @@ QmlWeb.registerQmlType({
     this.Component.completed.connect(this, this.Component$onCompleted);
   }
   $onColorChanged(newVal) {
-    this.impl.style.color = newVal.$css;
+    this.impl.style.color = (newVal === null) ? newVal
+      : newVal.$css;
   }
   $onTextChanged(newVal) {
     this.impl.innerHTML = newVal;
